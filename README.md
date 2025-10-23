@@ -1,133 +1,137 @@
-# Proyek Crowdfunding Stellar Soroban
+# Stellar Soroban Crowdfunding Project
 
-Proyek ini adalah implementasi aplikasi terdesentralisasi (dApp) crowdfunding yang dibangun di atas platform Stellar Soroban. dApp ini memungkinkan pengguna untuk membuat kampanye penggalangan dana dan pengguna lain untuk berdonasi ke kampanye tersebut menggunakan token Stellar khusus.
+This project is an implementation of a decentralized application (dApp) for crowdfunding, built on the Stellar Soroban platform. This dApp allows users to create fundraising campaigns and other users to donate to those campaigns using a custom Stellar token.
 
-## Struktur Proyek
+## Project Structure
 
-Proyek ini terdiri dari dua bagian utama:
+This project consists of two main parts:
 
-1.  **Kontrak Soroban (`my-token-project`)**:
-    * Berisi kode Rust untuk dua smart contract:
-        * `contracts/token`: Kontrak token kustom (berdasarkan standar token Soroban) yang digunakan untuk donasi.
-        * `contracts/crowdfunding`: Kontrak utama yang menangani logika pembuatan kampanye, donasi, dan refund.
-    * Menggunakan workspace Cargo untuk mengelola dependensi.
+1.  **Soroban Contracts (`my-token-project`)**:
+    * Contains Rust code for two smart contracts:
+        * `contracts/token`: A custom token contract (based on the Soroban token standard) used for donations.
+        * `contracts/crowdfunding`: The main contract that handles the logic for campaign creation, donations, and refunds.
+    * Uses a Cargo workspace to manage dependencies.
 
-2.  **Frontend React (`crowdfund`)**:
-    * Antarmuka pengguna (UI) yang dibangun menggunakan React dan Vite.
-    * Menggunakan [React Router](https://reactrouter.com/) untuk routing.
-    * Menggunakan [Tailwind CSS](https://tailwindcss.com/) dan [shadcn/ui](https://ui.shadcn.com/) (terlihat dari `components.json` dan struktur komponen UI) untuk styling.
-    * Menggunakan [`@creit.tech/stellar-wallets-kit`](https://github.com/Creit-Tech/stellar-wallets-kit) untuk integrasi dompet Stellar (seperti Freighter).
-    * Berinteraksi dengan kontrak Soroban melalui pustaka JavaScript yang dihasilkan secara otomatis (`packages/crowdfunding` dan `packages/token`).
+2.  **React Frontend (`crowdfund`)**:
+    * A user interface (UI) built using React and Vite.
+    * Uses [React Router](https://reactrouter.com/) for routing.
+    * Uses [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/) (evident from `components.json` and UI component structure) for styling.
+    * Uses [`@creit.tech/stellar-wallets-kit`](https://github.com/Creit-Tech/stellar-wallets-kit) for Stellar wallet integration (like Freighter).
+    * Interacts with the Soroban contracts via auto-generated JavaScript libraries (`packages/crowdfunding` and `packages/token`).
 
-## Kontrak Soroban
+## Soroban Contracts
 
-### Kontrak `token` (`my-token-project/contracts/token`)
+### `token` Contract (`my-token-project/contracts/token`)
 
-* Mengimplementasikan fungsionalitas token dasar sesuai standar Soroban.
-* Fungsi utama:
-    * `initialize`: Menginisialisasi token dengan nama, simbol, total pasokan, dan alamat admin.
-    * `name`, `symbol`, `decimals`, `total_supply`: Mengambil metadata token.
-    * `balance`: Mengecek saldo token untuk alamat tertentu.
-    * `transfer`: Mengirim token dari satu alamat ke alamat lain.
-* File `src/lib.rs` berisi logika utama kontrak.
-* File `src/test.rs` berisi unit test untuk memastikan fungsionalitas kontrak.
+* Implements basic token functionality according to the Soroban standard.
+* Key functions:
+    * `initialize`: Initializes the token with a name, symbol, total supply, and admin address.
+    * `name`, `symbol`, `decimals`, `total_supply`: Retrieve token metadata.
+    * `balance`: Checks the token balance for a specific address.
+    * `transfer`: Sends tokens from one address to another.
+* The `src/lib.rs` file contains the main contract logic.
+* The `src/test.rs` file contains unit tests to ensure contract functionality.
 
-### Kontrak `crowdfunding` (`my-token-project/contracts/crowdfunding`)
+### `crowdfunding` Contract (`my-token-project/contracts/crowdfunding`)
 
-* Kontrak inti yang mengelola kampanye crowdfunding.
-* Menyimpan data kampanye dalam sebuah `Map` menggunakan ID unik (`u64`).
-* Struktur Data `Campaign`:
-    * `owner`: Alamat pembuat kampanye.
-    * `goal`: Jumlah target dana (dalam stroops token).
-    * `deadline`: Batas waktu kampanye (Unix timestamp).
-    * `token`: Alamat kontrak token yang digunakan untuk donasi.
-    * `raised`: Jumlah dana yang sudah terkumpul.
-    * `donations`: `Map` yang melacak jumlah donasi dari setiap alamat donatur.
-* Fungsi Utama:
-    * `create_campaign`: Membuat kampanye baru dengan parameter yang ditentukan. Memerlukan otorisasi dari `owner`. Mengembalikan ID kampanye.
-    * `donate`: Mengirimkan donasi ke kampanye tertentu. Memerlukan otorisasi dari `donor`. Memanggil fungsi `transfer` pada kontrak token terkait.
-    * `refund`: Mengembalikan donasi kepada donatur jika kampanye telah berakhir *dan* target dana tidak tercapai. Memerlukan otorisasi dari `donor`. Memanggil fungsi `transfer` pada kontrak token terkait untuk mengirim dana kembali.
-    * `get_campaign`, `get_next_id`, `get_total_raised`, `get_donation`, `get_goal`, `get_deadline`, `is_goal_reached`, `is_ended`, `get_progress_percentage`: Fungsi read-only untuk mendapatkan informasi tentang kampanye.
-* File `src/lib.rs` berisi logika utama kontrak.
-* File `src/test.rs` berisi unit test, termasuk skenario sukses dan gagal untuk donasi dan refund.
+* The core contract that manages crowdfunding campaigns.
+* Stores campaign data in a `Map` using a unique ID (`u64`).
+* `Campaign` Data Structure:
+    * `owner`: The address of the campaign creator.
+    * `goal`: The target funding amount (in token stroops).
+    * `deadline`: The campaign deadline (Unix timestamp).
+    * `token`: The address of the token contract used for donations.
+    * `raised`: The amount of funds already raised.
+    * `donations`: A `Map` that tracks the donation amount from each donor address.
+* Key Functions:
+    * `create_campaign`: Creates a new campaign with specified parameters. Requires authorization from the `owner`. Returns the campaign ID.
+    * `donate`: Sends a donation to a specific campaign. Requires authorization from the `donor`. Calls the `transfer` function on the associated token contract.
+    * `refund`: Returns a donation to the donor if the campaign has ended *and* the funding goal was not met. Requires authorization from the `donor`. Calls the `transfer` function on the token contract to send funds back.
+    * `get_campaign`, `get_next_id`, `get_total_raised`, `get_donation`, `get_goal`, `get_deadline`, `is_goal_reached`, `is_ended`, `get_progress_percentage`: Read-only functions to get information about campaigns.
+* The `src/lib.rs` file contains the main contract logic.
+* The `src/test.rs` file contains unit tests, including success and failure scenarios for donations and refunds.
 
-## Frontend React (`crowdfund`)
+## React Frontend (`crowdfund`)
 
-* **Setup**: Menggunakan Vite sebagai build tool dan development server (`vite.config.ts`). Menggunakan `react-router` untuk routing sisi klien dan server (`app/routes.ts`).
-* **Styling**: Menggunakan Tailwind CSS (`tailwind.config.js`, `app/app.css`) dan komponen dari `shadcn/ui` (`app/components/ui`). Komponen `Card` memiliki efek spotlight (`app/components/card.tsx`, `app/components/card.css`).
-* **Integrasi Dompet**: Menggunakan `stellar-wallets-kit` untuk menghubungkan dompet (lihat `app/config/wallet.client.ts`). Komponen `ConnectWallet` (`app/components/connect-wallet.tsx`) menangani tampilan tombol connect/disconnect dan informasi akun. Hook `useWallet` (`app/hooks/use-wallet.ts`) menyediakan state dan fungsi terkait dompet.
-* **Interaksi Kontrak**:
-    * Mengimpor pustaka JS klien untuk kontrak (`crowdfunding-contract` dan `token-contract`) yang berada di direktori `packages/`.
-    * Hook `useSubmitTransaction` (`app/hooks/use-submit-transaction.ts`) digunakan untuk mengirim dan memantau status transaksi Soroban (donasi, refund, create).
-    * Halaman utama (`app/routes/home.tsx`):
-        * Menampilkan status kampanye pertama (ID 0).
-        * Memungkinkan pengguna untuk berdonasi ke kampanye ID 0.
-        * Memungkinkan donatur untuk melakukan refund jika syarat terpenuhi.
-        * Menampilkan form untuk membuat kampanye baru.
-        * Mengambil dan menampilkan saldo token pengguna (`useNativeBalance` mungkin perlu diubah namanya jika menggunakan token kustom, hook `useTokenBalance` mungkin lebih sesuai).
-        * Mengambil data kampanye (goal, deadline, raised, dll.) secara berkala atau saat ada trigger refresh.
-* **Komponen UI**:
-    * `Header`: Menampilkan judul dan tombol `ConnectWallet`.
-    * `Card`: Komponen dasar untuk membungkus bagian UI dengan efek spotlight.
-    * `Input`, `Button`, `DropdownMenu`: Komponen UI dasar dari `shadcn/ui`.
-    * `TextRotate`: Komponen untuk animasi teks berputar.
+* **Setup**: Uses Vite as the build tool and development server (`vite.config.ts`). Uses `react-router` for client-side and server-side routing (`app/routes.ts`).
+* **Styling**: Uses Tailwind CSS (`tailwind.config.js`, `app/app.css`) and components from `shadcn/ui` (`app/components/ui`). The `Card` component features a spotlight effect (`app/components/card.tsx`, `app/components/card.css`).
+* **Wallet Integration**: Uses `stellar-wallets-kit` to connect wallets (see `app/config/wallet.client.ts`). The `ConnectWallet` component (`app/components/connect-wallet.tsx`) handles the display of the connect/disconnect button and account info. The `useWallet` hook (`app/hooks/use-wallet.ts`) provides wallet-related state and functions.
+* **Contract Interaction**:
+    * Imports the JS client libraries for the contracts (`crowdfunding-contract` and `token-contract`) located in the `packages/` directory.
+    * The `useSubmitTransaction` hook (`app/hooks/use-submit-transaction.ts`) is used to send and monitor the status of Soroban transactions (donate, refund, create).
+    * Main Page (`app/routes/home.tsx`):
+        * Displays the status of the first campaign (ID 0).
+        * Allows users to donate to campaign ID 0.
+        * Allows donors to request a refund if conditions are met.
+        * Displays a form to create a new campaign.
+        * Fetches and displays the user's token balance (`useNativeBalance` might need renaming if using a custom token; `useTokenBalance` might be more appropriate).
+        * Fetches campaign data (goal, deadline, raised, etc.) periodically or on a refresh trigger.
+* **UI Components**:
+    * `Header`: Displays the title and the `ConnectWallet` button.
+    * `Card`: A basic component to wrap UI sections with a spotlight effect.
+    * `Input`, `Button`, `DropdownMenu`: Basic UI components from `shadcn/ui`.
+    * `TextRotate`: A component for rotating text animation.
 
-## Cara Menjalankan
+## How to Run
 
-### Kontrak Soroban
+### Soroban Contracts
 
-1.  Pastikan Anda memiliki [Rust dan Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup) terinstal.
-2.  Masuk ke direktori `my-token-project`.
-3.  Untuk build kontrak:
+1.  Ensure you have [Rust and the Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup) installed.
+2.  Navigate to the `my-token-project` directory.
+3.  To build the contracts:
     ```bash
     cd contracts/token
     soroban contract build
     cd ../crowdfunding
     soroban contract build
     ```
-    atau dari root `my-token-project`:
+    Or from the `my-token-project` root:
     ```bash
     soroban contract build --contracts token crowdfunding
     ```
-4.  Untuk menjalankan tes:
+4.  To run tests:
     ```bash
     cargo test
     ```
-5.  Untuk deploy (contoh):
+5.  To deploy (example):
     ```bash
     # Deploy token
-    soroban contract deploy --wasm contracts/token/target/wasm32-unknown-unknown/release/token.wasm --source <NAMA_AKUN_ANDA> --network testnet
-    # (Catat ID Kontrak Token)
+    soroban contract deploy --wasm contracts/token/target/wasm32-unknown-unknown/release/token.wasm --source <YOUR_ACCOUNT_NAME> --network testnet
+    # (Note the Token Contract ID)
 
     # Deploy crowdfunding
-    soroban contract deploy --wasm contracts/crowdfunding/target/wasm32-unknown-unknown/release/crowdfunding.wasm --source <NAMA_AKUN_ANDA> --network testnet
-    # (Catat ID Kontrak Crowdfunding)
+    soroban contract deploy --wasm contracts/crowdfunding/target/wasm32-unknown-unknown/release/crowdfunding.wasm --source <YOUR_ACCOUNT_NAME> --network testnet
+    # (Note the Crowdfunding Contract ID)
     ```
-    **Penting:** Perbarui `CROWDFUNDING_CONTRACT_ID` dan `TOKEN_CONTRACT_ID` di `crowdfund/app/routes/home.tsx` dengan ID kontrak yang baru Anda deploy.
+    **Important:** Update `CROWDFUNDING_CONTRACT_ID` and `TOKEN_CONTRACT_ID` in `crowdfund/app/routes/home.tsx` with your newly deployed contract IDs.
 
-### Frontend React
+### React Frontend
 
-1.  Pastikan Anda memiliki [Node.js dan npm](https://nodejs.org/) terinstal.
-2.  Masuk ke direktori `crowdfund`.
-3.  Instal dependensi:
+1.  Ensure you have [Node.js and npm](https://nodejs.org/) installed.
+2.  Navigate to the `crowdfund` directory.
+3.  Install dependencies:
     ```bash
     npm install
     ```
-4.  Generate/Update bindings kontrak (jika ID kontrak berubah atau kontrak diupdate):
+4.  Generate/Update contract bindings (if contract IDs change or contracts are updated):
     ```bash
-    # (Opsional, sesuaikan ID jika perlu)
+    # (Optional, adjust IDs if needed)
     cd packages/token
-    npm run build # Atau soroban contract bindings ts ...
+    npm run build # Or soroban contract bindings ts ...
     cd ../crowdfunding
-    npm run build # Atau soroban contract bindings ts ...
+    npm run build # Or soroban contract bindings ts ...
     cd ../..
     ```
-5.  Jalankan development server:
+5.  Run the development server:
     ```bash
     npm run dev
     ```
-6.  Buka browser Anda ke `http://localhost:5173`.
+6.  Open your browser to `http://localhost:5173`.
 
-## Lisensi
+## Contributors
 
-[Tentukan lisensi proyek Anda, misalnya MIT, Apache-2.0, dll.]
+* [Your Name/Organization]
+
+## License
+
+[Specify your project's license, e.g., MIT, Apache-2.0, etc.]
