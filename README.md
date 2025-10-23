@@ -1,5 +1,3 @@
-Tentu, berikut adalah terjemahan lengkap dari README.md ke dalam bahasa Inggris.
-
 💡 SmartCrowd: A Decentralized Crowdfunding Platform on Soroban
 (Visual prompt result: "futuristic happy digital painting with a MASCOT (bull) hero in a happy, bright futuristic SETTING (city), KEYWORDS (creating abundance, new frontiers)")
 
