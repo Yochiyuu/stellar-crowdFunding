@@ -1,8 +1,5 @@
 # 💡 SmartCrowd: A Decentralized Crowdfunding Platform on Soroban
 
-![Project Visual: A bull in a futuristic city creating abundance](https://i.imgur.com/83u6SgN.png)
-*(Visual prompt result: "futuristic happy digital painting with a MASCOT (bull) hero in a happy, bright futuristic SETTING (city), KEYWORDS (creating abundance, new frontiers)")*
-
 ## 🚀 Project Description
 
 SmartCrowd is a **fully decentralized Crowdfunding Platform** implemented on the **XX Blockchain** using Soroban. This project consists of two main contracts: a custom **Token Contract** for donations, and a **Crowdfunding Contract** to manage campaign logistics. Users can create time-bound campaigns with specific funding goals. Donors can contribute using the specified token and are eligible for a refund if the campaign fails to meet its goal by the deadline. The platform leverages Soroban's speed and transparency to ensure a secure and trustless fundraising environment on the Stellar network.
