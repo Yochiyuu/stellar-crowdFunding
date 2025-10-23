@@ -1,0 +1,22 @@
+# File: contracts/crowdfunding/Cargo.toml
+
+[package]
+name = "crowdfunding"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+# Mengambil soroban-sdk dari workspace utama
+soroban-sdk = { workspace = true }
+
+# Dependensi HANYA untuk testing ([dev-dependencies])
+[dev-dependencies]
+# Mengambil soroban-sdk dari workspace utama + fitur testutils
+soroban-sdk = { workspace = true, features = ["testutils"] }
+# Menambahkan dependensi ke kontrak token untuk dipakai di test.rs
+token = { path = "../token" } # <-- PASTIKAN INI ADA
