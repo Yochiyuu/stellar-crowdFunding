@@ -67,3 +67,12 @@ cd contracts/token && stellar contract build
 # Build Crowdfunding Contract
 cd ../crowdfunding && stellar contract build
 cd ../..
+
+### 2. Frontend: Configure and Run
+
+Navigate to your frontend directory (e.g., `crowdfund`).
+
+**a. Install Dependencies:**
+
+```bash
+npm install
